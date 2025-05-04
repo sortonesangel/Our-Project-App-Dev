@@ -61,6 +61,16 @@ import {
             Login
           </IonButton>
   
+          {/* Register Button */}
+          <IonButton
+            expand="full"
+            fill="clear"
+            routerLink="/our-project-app-dev/register"
+            style={{ marginTop: '10px', textTransform: 'none' }}
+          >
+            Don’t have an account? Register
+          </IonButton>
+  
           <IonToast
             isOpen={showToast}
             message={toastMessage}
