@@ -11,9 +11,12 @@ import {
   IonSelect,
   IonSelectOption,
   IonList,
+  IonCard,
+  IonCardContent,
 } from '@ionic/react';
 import React, { useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
+
 
 const moods = ['😊 Happy', '😢 Sad', '😠 Angry', '😐 Neutral', '😰 Anxious'];
 
@@ -63,7 +66,7 @@ const MoodTracker: React.FC = () => {
     });
 
     const dataPerDay: any = {};
-    const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     days.forEach(day => {
       dataPerDay[day] = moods.reduce((acc, m) => ({ ...acc, [m]: 0 }), {});
     });
@@ -73,17 +76,15 @@ const MoodTracker: React.FC = () => {
       dataPerDay[day][e.mood]++;
     });
 
-    const datasets = moods.map((mood, idx) => ({
-      label: mood,
-      data: days.map(day => dataPerDay[day][mood]),
-      backgroundColor: ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6'][idx],
-    }));
-
     new Chart(ctx, {
       type: 'bar',
       data: {
         labels: days,
-        datasets,
+        datasets: moods.map((mood, idx) => ({
+          label: mood,
+          data: days.map(day => dataPerDay[day][mood]),
+          backgroundColor: ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6'][idx],
+        })),
       },
       options: {
         responsive: true,
@@ -112,66 +113,82 @@ const MoodTracker: React.FC = () => {
     <IonPage>
       <IonHeader>
         <IonToolbar>
-          <IonTitle>Mood Tracker</IonTitle>
+          <IonTitle>📊 Mood Tracker</IonTitle>
         </IonToolbar>
       </IonHeader>
       <IonContent className="ion-padding">
+        <IonCard className="tracker-container">
+          <IonCardContent>
 
-        <IonList>
-          {moods.map(mood => (
-            <IonButton key={mood} expand="block" onClick={() => saveMood(mood)}>
-              {mood}
+            <h2 className="title">How are you feeling?</h2>
+
+            <div className="mood-buttons">
+              {moods.map(mood => (
+                <IonButton key={mood} color="primary" onClick={() => saveMood(mood)}>
+                  {mood}
+                </IonButton>
+              ))}
+            </div>
+
+            <form
+              onSubmit={e => {
+                e.preventDefault();
+                handleSubmit();
+              }}
+              className="note-form"
+            >
+              <IonItem lines="none">
+                <IonSelect
+                  placeholder="Select Mood"
+                  value={selectedMood}
+                  onIonChange={e => setSelectedMood(e.detail.value)}
+                  interface="popover"
+                  required
+                >
+                  {moods.map(mood => (
+                    <IonSelectOption key={mood} value={mood}>
+                      {mood}
+                    </IonSelectOption>
+                  ))}
+                </IonSelect>
+              </IonItem>
+              <IonItem lines="none">
+                <IonTextarea
+                  value={note}
+                  placeholder="Write how you feel..."
+                  onIonChange={e => setNote(e.detail.value!)}
+                />
+              </IonItem>
+              <IonButton expand="block" type="submit" color="success" className="submit-btn">
+                Save Mood with Note
+              </IonButton>
+            </form>
+
+            <IonButton expand="block" color="tertiary" onClick={toggleLog} className="toggle-btn">
+              📂 {showLog ? 'Hide' : 'Show'} Mood Log
             </IonButton>
-          ))}
-        </IonList>
 
-        <IonItem>
-          <IonLabel>Optional Mood with Note</IonLabel>
-        </IonItem>
-        <IonItem>
-          <IonSelect
-            placeholder="Select Mood"
-            value={selectedMood}
-            onIonChange={(e) => setSelectedMood(e.detail.value)}
-          >
-            {moods.map(mood => (
-              <IonSelectOption key={mood} value={mood}>{mood}</IonSelectOption>
-            ))}
-          </IonSelect>
-        </IonItem>
-        <IonItem>
-          <IonTextarea
-            value={note}
-            placeholder="Write how you feel..."
-            onIonChange={(e) => setNote(e.detail.value!)}
-          />
-        </IonItem>
-        <IonButton expand="full" onClick={handleSubmit} style={{ marginTop: 10 }}>
-          Save Mood with Note
-        </IonButton>
-
-        <IonButton expand="full" color="tertiary" onClick={toggleLog}>
-          📂 {showLog ? 'Hide' : 'Show'} Mood Log
-        </IonButton>
-
-        {showLog && (
-          <div style={{ marginTop: 20 }}>
-            <h3>Your Weekly Mood Log</h3>
-            {entries.length === 0 ? (
-              <p>No entries yet.</p>
-            ) : (
-              <ul>
-                {entries.map((entry, idx) => (
-                  <li key={idx}>
-                    <strong>{entry.mood}</strong> - {new Date(entry.time).toLocaleString()}
-                    {entry.note && <div>📝 {entry.note}</div>}
-                  </li>
-                ))}
-              </ul>
+            {showLog && (
+              <div className="mood-log">
+                <h3>Your Weekly Mood Log</h3>
+                {entries.length === 0 ? (
+                  <p className="empty-log">No entries yet.</p>
+                ) : (
+                  <ul>
+                    {entries.map((entry, idx) => (
+                      <li key={idx}>
+                        <strong>{entry.mood}</strong> -{' '}
+                        {new Date(entry.time).toLocaleString()}
+                        {entry.note && <div>📝 {entry.note}</div>}
+                      </li>
+                    ))}
+                  </ul>
+                )}
+                <canvas id="moodChart" className="chart-canvas" />
+              </div>
             )}
-            <canvas id="moodChart" />
-          </div>
-        )}
+          </IonCardContent>
+        </IonCard>
       </IonContent>
     </IonPage>
   );
