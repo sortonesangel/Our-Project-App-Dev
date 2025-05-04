@@ -29,8 +29,8 @@ import {
     const [showToast, setShowToast] = useState(false);
   
     const path = [
-      { name: 'Home', url: '/it35-lab/app/home', icon: homeOutline },
-      { name: 'About', url: '/it35-lab/app/about', icon: rocketOutline },
+      { name: 'Home', url: '/our-project-app-dev/app/home', icon: homeOutline },
+      { name: 'About', url: '/our-project-app-dev/app/about', icon: rocketOutline },
     ];
   
     const handleLogout = () => {
@@ -38,7 +38,7 @@ import {
         // Simulate successful logout (no Supabase here)
         setShowToast(true);
         setTimeout(() => {
-          navigation.push('/it35-lab', 'back', 'replace');
+          navigation.push('/our-project-app-dev', 'back', 'replace');
         }, 300);
       } catch (error: any) {
         setErrorMessage('Logout failed due to an unexpected error.');
@@ -76,11 +76,11 @@ import {
   
           {/* Routing Outlet */}
           <IonRouterOutlet id="main">
-            <Route exact path="/it35-lab/app/home" component={Home} />
-            <Route exact path="/it35-lab/app/home/details" component={Details} />
-            <Route exact path="/it35-lab/app/about" component={About} />
-            <Route exact path="/it35-lab/app">
-              <Redirect to="/it35-lab/app/home" />
+            <Route exact path="/our-project-app-dev/app/home" component={Home} />
+            <Route exact path="/our-project-app-dev/app/home/details" component={Details} />
+            <Route exact path="/our-project-app-dev/app/about" component={About} />
+            <Route exact path="/our-project-app-dev/app">
+              <Redirect to="/our-project-app-dev/app/home" />
             </Route>
           </IonRouterOutlet>
   
