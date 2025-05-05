@@ -73,7 +73,7 @@ import {
               </IonButton>
             </IonContent>
           </IonMenu>
-  
+
           {/* Routing Outlet */}
           <IonRouterOutlet id="main">
             <Route exact path="/our-project-app-dev/app/home" component={Home} />
