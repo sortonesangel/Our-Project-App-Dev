@@ -10,7 +10,8 @@ export default defineConfig({
     react(),
     legacy()
   ],
-  base:"/our-project-app-dev/",
+  base: '/our-project-app-dev/', // <- your GitHub repo name
+
   test: {
     globals: true,
     environment: 'jsdom',
