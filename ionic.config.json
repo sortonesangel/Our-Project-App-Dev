@@ -1,6 +1,7 @@
 {
   "name": "Our-Project-App-Dev",
-  "integrations": {"capacitor": {}
+  "integrations": {
+    "capacitor": {}
   },
   "type": "react-vite"
 }
