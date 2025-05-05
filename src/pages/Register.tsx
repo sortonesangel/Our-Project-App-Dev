@@ -99,4 +99,3 @@ import {
   };
   
   export default Register;
-  
