@@ -70,7 +70,7 @@ import {
           >
             Don’t have an account? Register
           </IonButton>
-  
+
           <IonToast
             isOpen={showToast}
             message={toastMessage}
