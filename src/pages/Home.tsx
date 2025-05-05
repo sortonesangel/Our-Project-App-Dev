@@ -42,6 +42,6 @@ const Home: React.FC = () => {
       </IonTabs>
     </IonReactRouter>
   );
-};
-
+}; 
+ 
 export default Home;
