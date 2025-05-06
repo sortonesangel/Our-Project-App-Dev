@@ -8,17 +8,29 @@ import {
   IonTextarea,
   IonItem,
   IonLabel,
-  IonSelect,
-  IonSelectOption,
-  IonList,
   IonCard,
   IonCardContent,
 } from '@ionic/react';
+import { happy, sad, alertCircle, removeCircle, helpCircle } from 'ionicons/icons';
 import React, { useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
+import { supabase } from '../../utils/supabaseClient'; // 🔗 Adjust path if needed
 
+const moods = [
+  { label: '😊 Happy', icon: happy, color: '#f1c40f' },
+  { label: '😢 Sad', icon: sad, color: '#3498db' },
+  { label: '😠 Angry', icon: alertCircle, color: '#e74c3c' },
+  { label: '😐 Neutral', icon: removeCircle, color: '#8e44ad' },
+  { label: '😰 Anxious', icon: helpCircle, color: '#f39c12' },
+];
 
-const moods = ['😊 Happy', '😢 Sad', '😠 Angry', '😐 Neutral', '😰 Anxious'];
+const animatedMoodGIFs: Record<string, string> = {
+  '😊 Happy': 'https://i.pinimg.com/originals/3b/88/06/3b88061f541255f8dc17d358befd7e80.gif',
+  '😢 Sad': 'https://media.tenor.com/cXI2cy9yEYoAAAAM/crying-sad.gif',
+  '😠 Angry': 'https://media.tenor.com/maT9ZhBqf2gAAAAM/argh-angry.gif',
+  '😐 Neutral': 'https://media.tenor.com/zqh7JkYNKggAAAAM/bored-ennui.gif',
+  '😰 Anxious': 'https://media.tenor.com/y66OKxpG16oAAAAM/anxiety-inside-out.gif',
+};
 
 const MoodTracker: React.FC = () => {
   const [selectedMood, setSelectedMood] = useState('');
@@ -27,22 +39,42 @@ const MoodTracker: React.FC = () => {
   const [showLog, setShowLog] = useState(false);
 
   useEffect(() => {
-    const saved = localStorage.getItem('mood_entries');
-    if (saved) setEntries(JSON.parse(saved));
+    fetchEntries();
   }, []);
 
   useEffect(() => {
-    localStorage.setItem('mood_entries', JSON.stringify(entries));
-    renderChart();
-  }, [entries]);
+    if (showLog && entries.length > 0) {
+      renderChart();
+    }
+  }, [entries, showLog]);
 
-  const saveMood = (mood: string, note = '') => {
-    const newEntry = {
-      mood,
-      note,
-      time: new Date().toISOString(),
-    };
-    setEntries([...entries, newEntry]);
+  const fetchEntries = async () => {
+    const { data, error } = await supabase
+      .from('mood_entries')
+      .select('*')
+      .order('created_at', { ascending: false }); // Changed 'time' to 'created_at'
+
+    if (error) {
+      console.error('Error fetching mood entries:', error.message);
+    } else {
+      setEntries(data || []);
+    }
+  };
+
+  const saveMood = async (mood: string, note = '') => {
+    const { error } = await supabase.from('mood_entries').insert([
+      {
+        mood,
+        note,
+        created_at: new Date().toISOString(), // Changed 'time' to 'created_at'
+      },
+    ]);
+
+    if (error) {
+      console.error('Error saving mood:', error.message);
+    } else {
+      fetchEntries(); // Refresh data after save
+    }
   };
 
   const handleSubmit = () => {
@@ -50,6 +82,7 @@ const MoodTracker: React.FC = () => {
       saveMood(selectedMood, note);
       setNote('');
       setSelectedMood('');
+      setShowLog(true);
     }
   };
 
@@ -61,33 +94,34 @@ const MoodTracker: React.FC = () => {
 
     const currentWeek = getWeekRange();
     const filtered = entries.filter(e => {
-      const d = new Date(e.time);
+      const d = new Date(e.created_at); // Changed 'time' to 'created_at'
       return d >= currentWeek.monday && d <= currentWeek.sunday;
     });
 
     const dataPerDay: any = {};
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     days.forEach(day => {
-      dataPerDay[day] = moods.reduce((acc, m) => ({ ...acc, [m]: 0 }), {});
+      dataPerDay[day] = moods.reduce((acc, m) => ({ ...acc, [m.label]: 0 }), {});
     });
 
     filtered.forEach(e => {
-      const day = new Date(e.time).toLocaleDateString('en-US', { weekday: 'long' });
-      dataPerDay[day][e.mood]++;
+      const day = new Date(e.created_at).toLocaleDateString('en-US', { weekday: 'long' }); // Changed 'time' to 'created_at'
+      if (dataPerDay[day]) dataPerDay[day][e.mood]++;
     });
 
     new Chart(ctx, {
       type: 'bar',
       data: {
         labels: days,
-        datasets: moods.map((mood, idx) => ({
-          label: mood,
-          data: days.map(day => dataPerDay[day][mood]),
-          backgroundColor: ['#2ecc71', '#3498db', '#e74c3c', '#f1c40f', '#9b59b6'][idx],
+        datasets: moods.map(mood => ({
+          label: mood.label,
+          data: days.map(day => dataPerDay[day][mood.label]),
+          backgroundColor: mood.color,
         })),
       },
       options: {
         responsive: true,
+        plugins: { legend: { position: 'bottom' } },
         scales: {
           y: {
             beginAtZero: true,
@@ -112,80 +146,102 @@ const MoodTracker: React.FC = () => {
   return (
     <IonPage>
       <IonHeader>
-        <IonToolbar>
-          <IonTitle>📊 Mood Tracker</IonTitle>
+        <IonToolbar color="primary">
+          <IonTitle>Mood Tracker - AppDev & Emerging Tech</IonTitle>
         </IonToolbar>
       </IonHeader>
-      <IonContent className="ion-padding">
-        <IonCard className="tracker-container">
+      <IonContent className="ion-padding" fullscreen>
+        <IonCard className="ion-margin">
           <IonCardContent>
+            <h2 style={{ textAlign: 'center', fontWeight: 'bold' }}>🧠 Track Your Mood</h2>
+            <p style={{ textAlign: 'center', color: '#666' }}>
+              Log your emotional state and see weekly summaries!
+            </p>
 
-            <h2 className="title">How are you feeling?</h2>
-
-            <div className="mood-buttons">
-              {moods.map(mood => (
-                <IonButton key={mood} color="primary" onClick={() => saveMood(mood)}>
-                  {mood}
+            {/* Replace IonSelect with Mood Buttons */}
+            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+              {moods.map((mood) => (
+                <IonButton
+                  key={mood.label}
+                  color={selectedMood === mood.label ? 'success' : 'light'}
+                  onClick={() => setSelectedMood(mood.label)}
+                  style={{
+                    margin: '0.5rem',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                  }}
+                >
+                  <img
+                    src={mood.icon}
+                    alt={mood.label}
+                    style={{ height: '40px', marginBottom: '0.5rem' }}
+                  />
+                  <span>{mood.label}</span>
                 </IonButton>
               ))}
             </div>
 
-            <form
-              onSubmit={e => {
-                e.preventDefault();
-                handleSubmit();
-              }}
-              className="note-form"
-            >
-              <IonItem lines="none">
-                <IonSelect
-                  placeholder="Select Mood"
-                  value={selectedMood}
-                  onIonChange={e => setSelectedMood(e.detail.value)}
-                  interface="popover"
-                  required
-                >
-                  {moods.map(mood => (
-                    <IonSelectOption key={mood} value={mood}>
-                      {mood}
-                    </IonSelectOption>
-                  ))}
-                </IonSelect>
-              </IonItem>
-              <IonItem lines="none">
-                <IonTextarea
-                  value={note}
-                  placeholder="Write how you feel..."
-                  onIonChange={e => setNote(e.detail.value!)}
+            {selectedMood && (
+              <div style={{ textAlign: 'center', margin: '1rem 0' }}>
+                <img
+                  src={animatedMoodGIFs[selectedMood]}
+                  alt={selectedMood}
+                  style={{ height: '100px', borderRadius: '1rem' }}
                 />
-              </IonItem>
-              <IonButton expand="block" type="submit" color="success" className="submit-btn">
-                Save Mood with Note
-              </IonButton>
-            </form>
+                <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{selectedMood}</p>
+              </div>
+            )}
 
-            <IonButton expand="block" color="tertiary" onClick={toggleLog} className="toggle-btn">
-              📂 {showLog ? 'Hide' : 'Show'} Mood Log
+            <IonItem lines="none">
+              <IonLabel position="stacked">Optional Note</IonLabel>
+              <IonTextarea
+                placeholder="Write about your day or feelings..."
+                value={note}
+                onIonChange={e => setNote(e.detail.value!)}
+              />
+            </IonItem>
+
+            <IonButton expand="block" onClick={handleSubmit} color="success">
+              Save Mood Entry
+            </IonButton>
+
+            <IonButton expand="block" color="medium" onClick={toggleLog}>
+              {showLog ? 'Hide Mood History' : 'Show Weekly Mood Log'}
             </IonButton>
 
             {showLog && (
-              <div className="mood-log">
-                <h3>Your Weekly Mood Log</h3>
-                {entries.length === 0 ? (
-                  <p className="empty-log">No entries yet.</p>
-                ) : (
-                  <ul>
-                    {entries.map((entry, idx) => (
-                      <li key={idx}>
-                        <strong>{entry.mood}</strong> -{' '}
-                        {new Date(entry.time).toLocaleString()}
-                        {entry.note && <div>📝 {entry.note}</div>}
-                      </li>
-                    ))}
-                  </ul>
-                )}
-                <canvas id="moodChart" className="chart-canvas" />
-              </div>
+              <>
+                <h3 style={{ marginTop: '1rem' }}>📅 Mood Timeline</h3>
+                <ul style={{ listStyle: 'none', padding: 0 }}>
+                  {entries.length === 0 ? (
+                    <p>No mood entries yet.</p>
+                  ) : (
+                    entries.map((entry, idx) => {
+                      const moodData = moods.find(m => m.label === entry.mood);
+                      return (
+                        <li
+                          key={idx}
+                          style={{
+                            marginBottom: '1rem',
+                            borderLeft: `4px solid ${moodData?.color}`,
+                            paddingLeft: '1rem',
+                          }}
+                        >
+                          <strong>{entry.mood}</strong> on{' '}
+                          {new Date(entry.created_at).toLocaleString()} {/* Changed 'time' to 'created_at' */}
+                          {entry.note && (
+                            <div style={{ fontStyle: 'italic', marginTop: '0.25rem' }}>
+                              Note: {entry.note}
+                            </div>
+                          )}
+                        </li>
+                      );
+                    })
+                  )}
+                </ul>
+                <canvas id="moodChart" style={{ maxHeight: '400px', marginTop: '2rem' }} />
+              </>
             )}
           </IonCardContent>
         </IonCard>
@@ -195,4 +251,3 @@ const MoodTracker: React.FC = () => {
 };
 
 export default MoodTracker;
- 
