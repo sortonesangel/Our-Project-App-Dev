@@ -106,7 +106,6 @@ const Menu: React.FC = () => {
       </IonSplitPane>
     </IonPage>
   );
-};
-
+}; 
 export default Menu;
  
