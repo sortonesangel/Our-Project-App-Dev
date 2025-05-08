@@ -23,7 +23,7 @@ import {
         <IonContent className='ion-padding'>
         </IonContent>
       </IonPage>
-    );
+    ); 
   };
   
   export default Details;
