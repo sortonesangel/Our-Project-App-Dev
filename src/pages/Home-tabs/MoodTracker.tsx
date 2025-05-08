@@ -15,7 +15,7 @@ import { happy, sad, alertCircle, removeCircle, helpCircle } from 'ionicons/icon
 import React, { useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
 import { supabase } from '../../utils/supabaseClient'; // 🔗 Adjust path if needed
-
+ 
 const moods = [
   { label: '😊 Happy', icon: happy, color: '#f1c40f' },
   { label: '😢 Sad', icon: sad, color: '#3498db' },
