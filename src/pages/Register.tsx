@@ -52,7 +52,7 @@ const Register: React.FC = () => {
       }, 1500);
     }
   };
- 
+  
   return (
     <IonPage>
       <IonHeader>
