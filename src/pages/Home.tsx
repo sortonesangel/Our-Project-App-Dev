@@ -66,7 +66,7 @@ const Home: React.FC = () => {
                     alt={mood.label}
                     style={{
                       width: '70px',
-                      height: '70px',
+                      height: '70px', 
                       marginBottom: '5px',
                       borderRadius: '50%',
                       border: '2px solid white',
