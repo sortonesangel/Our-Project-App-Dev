@@ -17,7 +17,7 @@ import {
             <IonButtons slot='start'>
                 <IonBackButton defaultHref='/our-project-app-dev/app/home'></IonBackButton>
             </IonButtons>
-            <IonTitle>Home Details</IonTitle>
+            <IonTitle> Details</IonTitle>
           </IonToolbar>
         </IonHeader>
         <IonContent className='ion-padding'>
