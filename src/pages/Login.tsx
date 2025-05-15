@@ -26,7 +26,7 @@ const Login: React.FC = () => {
       email: username,
       password,
     });
- 
+
     if (error) {
       setToastMessage(error.message);
       setShowToast(true);
@@ -34,48 +34,101 @@ const Login: React.FC = () => {
       navigation.push('/our-project-app-dev/app', 'forward', 'replace');
     }
   };
- 
+
   return (
     <IonPage>
-      <IonHeader>
-        <IonToolbar>
-          <IonTitle>Login</IonTitle>
-        </IonToolbar>
-      </IonHeader>
-      <IonContent className="ion-padding">
-        <IonItem>
-          <IonLabel position="floating">Email</IonLabel>
-          <IonInput
-            value={username}
-            onIonChange={(e) => setUsername(e.detail.value!)}
-            clearInput
-            type="email"
-          />
-        </IonItem>
-
-        <IonItem>
-          <IonLabel position="floating">Password</IonLabel>
-          <IonInput
-            type="password"
-            value={password}
-            onIonChange={(e) => setPassword(e.detail.value!)}
-            clearInput
-          />
-        </IonItem>
-
-        <IonButton expand="full" onClick={doLogin} style={{ marginTop: '20px' }}>
-          Login
-        </IonButton>
-
-        <IonButton
-          expand="full"
-          fill="clear"
-          routerLink="/our-project-app-dev/register"
-          style={{ marginTop: '10px', textTransform: 'none' }}
+      <IonContent
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          minHeight: '100vh',
+          background: '#f3f4f6', // Light gray background
+        }}
+      >
+        {/* Floating Card */}
+        <div
+          style={{
+            maxWidth: '400px',
+            width: '100%',
+            padding: '30px',
+            borderRadius: '15px',
+            background: '#ffffff', // White background for the card
+            boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)', // Subtle shadow
+            textAlign: 'center',
+          }}
         >
-          Don’t have an account? Register
-        </IonButton>
+          {/* Logo */}
+          <div style={{ marginBottom: '20px' }}>
+            <img
+              src="/assets/logo.png" // Replace with your logo path
+              alt="Mood Tracker Logo"
+              style={{
+                width: '80px',
+                height: '80px',
+                borderRadius: '50%',
+                objectFit: 'cover',
+              }}
+            />
+          </div>
 
+          {/* Title */}
+          <h1 style={{ fontSize: '24px', marginBottom: '20px', color: '#333' }}>
+            Welcome Back!
+          </h1>
+
+          {/* Email Input */}
+          <IonItem>
+            <IonLabel position="floating">Email</IonLabel>
+            <IonInput
+              value={username}
+              onIonChange={(e) => setUsername(e.detail.value!)}
+              clearInput
+              type="email"
+            />
+          </IonItem>
+
+          {/* Password Input */}
+          <IonItem style={{ marginTop: '10px' }}>
+            <IonLabel position="floating">Password</IonLabel>
+            <IonInput
+              type="password"
+              value={password}
+              onIonChange={(e) => setPassword(e.detail.value!)}
+              clearInput
+            />
+          </IonItem>
+
+          {/* Login Button */}
+          <IonButton
+            expand="full"
+            onClick={doLogin}
+            style={{
+              marginTop: '20px',
+              fontSize: '16px',
+              fontWeight: 'bold',
+            }}
+          >
+            Login
+          </IonButton>
+
+          {/* Register Link */}
+          <IonButton
+            expand="full"
+            fill="clear"
+            routerLink="/our-project-app-dev/register"
+            style={{
+              marginTop: '10px',
+              fontSize: '14px',
+              color: '#007aff', // Primary color for link
+              textTransform: 'none',
+            }}
+          >
+            Don’t have an account? Register
+          </IonButton>
+        </div>
+
+        {/* Toast Notification */}
         <IonToast
           isOpen={showToast}
           message={toastMessage}
