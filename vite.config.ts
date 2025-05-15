@@ -14,7 +14,7 @@ export default defineConfig({
     }),
   ],
 
-  base: '/our-project-app-dev', 
+  base: '/Our-Project-App-Dev', 
   test: {
     globals: true,
     environment: 'jsdom',
