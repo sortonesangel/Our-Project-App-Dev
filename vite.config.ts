@@ -6,7 +6,6 @@ import legacy from '@vitejs/plugin-legacy'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  base: '/our-project-app-dev/', // Set to your repo name for GitHub Pages
 
   plugins: [
     react(),
@@ -15,6 +14,7 @@ export default defineConfig({
     }),
   ],
 
+  base: '/our-project-app-dev', 
   test: {
     globals: true,
     environment: 'jsdom',

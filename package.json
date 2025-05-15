@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "homepage": "https://github.com/sortonesangel/Our-Project-App-Dev",
+  "homepage": "https://sortonesangel.github.io/our-project-app-dev",
   "scripts": {
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
@@ -28,7 +28,8 @@
     "react": "19.0.0",
     "react-dom": "19.0.0",
     "react-router": "^5.3.4",
-    "react-router-dom": "^5.3.4"
+    "react-router-dom": "^5.3.4",
+    "save-dev": "^0.0.1-security"
   },
   "devDependencies": {
     "@testing-library/dom": ">=7.21.4",
