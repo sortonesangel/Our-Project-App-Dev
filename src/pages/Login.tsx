@@ -43,7 +43,7 @@ const AccessPortal: React.FC = () => {
 
     setToastVisible(true);
     setTimeout(() => {
-      router.push('/it35-lab/app', 'forward', 'replace');
+      router.push('/Our-Project-App-Dev/app', 'forward', 'replace');
     }, 300);
   };
 
@@ -213,7 +213,7 @@ const AccessPortal: React.FC = () => {
 
             {/* Register Link */}
             <IonButton
-              routerLink="/it35-lab/Register"
+              routerLink="/Our-Project-App-Dev/Register"
               expand="block"
               fill="clear"
               style={{

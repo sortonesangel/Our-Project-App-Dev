@@ -31,17 +31,17 @@ const Menu: React.FC = () => {
   const [showToast, setShowToast] = useState(false);
 
   const path = [
-    { name: 'Home', url: '/our-project-app-dev/app/home', icon: homeOutline },
-    { name: 'About', url: '/our-project-app-dev/app/about', icon: rocketOutline },
-    { name: 'Details', url: '/our-project-app-dev/app/home/details/1', icon: rocketOutline },
-    { name: 'Mood Tracker', url: '/our-project-app-dev/app/home/mood', icon: happyOutline },
+    { name: 'Home', url: '/Our-Project-App-Dev/app/home', icon: homeOutline },
+    { name: 'About', url: '/Our-Project-App-Dev/app/about', icon: rocketOutline },
+    { name: 'Details', url: '/Our-Project-App-Dev/app/home/details/1', icon: rocketOutline },
+    { name: 'Mood Tracker', url: '/Our-Project-App-Dev/app/home/mood', icon: happyOutline },
   ];
 
   const handleLogout = () => {
     try {
       setShowToast(true);
       setTimeout(() => {
-        navigation.push('/our-project-app-dev', 'back', 'replace');
+        navigation.push('/Our-Project-App-Dev', 'back', 'replace');
       }, 500);
     } catch (error: any) {
       setErrorMessage('Logout failed due to an unexpected error.');
@@ -78,12 +78,12 @@ const Menu: React.FC = () => {
 
         {/* Main Content Routing */}
         <IonRouterOutlet id="main">
-          <Route exact path="/our-project-app-dev/app/home" component={Home} />
-          <Route exact path="/our-project-app-dev/app/about" component={About} />
-          <Route exact path="/our-project-app-dev/app/home/details/:id" component={Details} />
-          <Route exact path="/our-project-app-dev/app/home/mood" component={MoodTracker} />
-          <Route exact path="/our-project-app-dev/app">
-            <Redirect to="/our-project-app-dev/app/home" />
+          <Route exact path="/Our-Project-App-Dev/app/home" component={Home} />
+          <Route exact path="/Our-Project-App-Dev/app/about" component={About} />
+          <Route exact path="/Our-Project-App-Dev/app/home/details/:id" component={Details} />
+          <Route exact path="/Our-Project-App-Dev/app/home/mood" component={MoodTracker} />
+          <Route exact path="/Our-Project-App-Dev/app">
+            <Redirect to="/Our-Project-App-Dev/app/home" />
           </Route>
         </IonRouterOutlet>
 

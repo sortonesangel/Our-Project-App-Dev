@@ -12,10 +12,10 @@ import {
   IonCardContent,
 } from '@ionic/react';
 import { happy, sad, alertCircle, removeCircle, helpCircle } from 'ionicons/icons';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import Chart from 'chart.js/auto';
-import { supabase } from '../../utils/supabaseClient'; // 🔗 Adjust path if needed
- 
+import { supabase } from '../../utils/supabaseClient';
+
 const moods = [
   { label: '😊 Happy', icon: happy, color: '#f1c40f' },
   { label: '😢 Sad', icon: sad, color: '#3498db' },
@@ -38,6 +38,8 @@ const MoodTracker: React.FC = () => {
   const [entries, setEntries] = useState<any[]>([]);
   const [showLog, setShowLog] = useState(false);
 
+  const chartRef = useRef<Chart | null>(null);
+
   useEffect(() => {
     fetchEntries();
   }, []);
@@ -52,7 +54,7 @@ const MoodTracker: React.FC = () => {
     const { data, error } = await supabase
       .from('mood_entries')
       .select('*')
-      .order('created_at', { ascending: false }); // Changed 'time' to 'created_at'
+      .order('created_at', { ascending: false });
 
     if (error) {
       console.error('Error fetching mood entries:', error.message);
@@ -66,7 +68,7 @@ const MoodTracker: React.FC = () => {
       {
         mood,
         note,
-        created_at: new Date().toISOString(), // Changed 'time' to 'created_at'
+        created_at: new Date().toISOString(),
       },
     ]);
 
@@ -88,50 +90,6 @@ const MoodTracker: React.FC = () => {
 
   const toggleLog = () => setShowLog(!showLog);
 
-  const renderChart = () => {
-    const ctx = document.getElementById('moodChart') as HTMLCanvasElement;
-    if (!ctx) return;
-
-    const currentWeek = getWeekRange();
-    const filtered = entries.filter(e => {
-      const d = new Date(e.created_at); // Changed 'time' to 'created_at'
-      return d >= currentWeek.monday && d <= currentWeek.sunday;
-    });
-
-    const dataPerDay: any = {};
-    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    days.forEach(day => {
-      dataPerDay[day] = moods.reduce((acc, m) => ({ ...acc, [m.label]: 0 }), {});
-    });
-
-    filtered.forEach(e => {
-      const day = new Date(e.created_at).toLocaleDateString('en-US', { weekday: 'long' }); // Changed 'time' to 'created_at'
-      if (dataPerDay[day]) dataPerDay[day][e.mood]++;
-    });
-
-    new Chart(ctx, {
-      type: 'bar',
-      data: {
-        labels: days,
-        datasets: moods.map(mood => ({
-          label: mood.label,
-          data: days.map(day => dataPerDay[day][mood.label]),
-          backgroundColor: mood.color,
-        })),
-      },
-      options: {
-        responsive: true,
-        plugins: { legend: { position: 'bottom' } },
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: { stepSize: 1 },
-          },
-        },
-      },
-    });
-  };
-
   const getWeekRange = () => {
     const now = new Date();
     const monday = new Date(now);
@@ -141,6 +99,46 @@ const MoodTracker: React.FC = () => {
     sunday.setDate(monday.getDate() + 6);
     sunday.setHours(23, 59, 59, 999);
     return { monday, sunday };
+  };
+
+  const renderChart = () => {
+    const ctx = document.getElementById('moodChart') as HTMLCanvasElement;
+    if (!ctx) return;
+
+    if (chartRef.current) {
+      chartRef.current.destroy();
+    }
+
+    const currentWeek = getWeekRange();
+    const filtered = entries.filter(e => {
+      const d = new Date(e.created_at);
+      return d >= currentWeek.monday && d <= currentWeek.sunday;
+    });
+
+    const moodCounts: Record<string, number> = {};
+    moods.forEach(m => (moodCounts[m.label] = 0));
+    filtered.forEach(e => moodCounts[e.mood]++);
+
+    const moodLabels = moods.map(m => m.label);
+    const moodData = moodLabels.map(label => moodCounts[label]);
+    const moodColors = moods.map(m => m.color);
+
+    chartRef.current = new Chart(ctx, {
+      type: 'pie',
+      data: {
+        labels: moodLabels,
+        datasets: [{
+          data: moodData,
+          backgroundColor: moodColors,
+        }],
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: { position: 'bottom' },
+        },
+      },
+    });
   };
 
   return (
@@ -158,8 +156,7 @@ const MoodTracker: React.FC = () => {
               Log your emotional state and see weekly summaries!
             </p>
 
-            {/* Replace IonSelect with Mood Buttons */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap', marginBottom: '1rem' }}>
               {moods.map((mood) => (
                 <IonButton
                   key={mood.label}
@@ -212,35 +209,34 @@ const MoodTracker: React.FC = () => {
 
             {showLog && (
               <>
-                <h3 style={{ marginTop: '1rem' }}>📅 Mood Timeline</h3>
-                <ul style={{ listStyle: 'none', padding: 0 }}>
-                  {entries.length === 0 ? (
-                    <p>No mood entries yet.</p>
-                  ) : (
-                    entries.map((entry, idx) => {
-                      const moodData = moods.find(m => m.label === entry.mood);
-                      return (
-                        <li
-                          key={idx}
-                          style={{
-                            marginBottom: '1rem',
-                            borderLeft: `4px solid ${moodData?.color}`,
-                            paddingLeft: '1rem',
-                          }}
-                        >
-                          <strong>{entry.mood}</strong> on{' '}
-                          {new Date(entry.created_at).toLocaleString()} {/* Changed 'time' to 'created_at' */}
-                          {entry.note && (
-                            <div style={{ fontStyle: 'italic', marginTop: '0.25rem' }}>
-                              Note: {entry.note}
-                            </div>
-                          )}
-                        </li>
-                      );
-                    })
-                  )}
-                </ul>
-                <canvas id="moodChart" style={{ maxHeight: '400px', marginTop: '2rem' }} />
+                <h3 style={{ marginTop: '1rem' }}>📅 Mood Entries (This Week)</h3>
+                {entries.length === 0 ? (
+                  <p>No mood entries yet.</p>
+                ) : (
+                  <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                    <thead>
+                      <tr>
+                        <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left', padding: '8px' }}>Date</th>
+                        <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left', padding: '8px' }}>Mood</th>
+                        <th style={{ borderBottom: '1px solid #ccc', textAlign: 'left', padding: '8px' }}>Note</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {entries.map((entry, idx) => (
+                        <tr key={idx}>
+                          <td style={{ padding: '8px' }}>
+                            {new Date(entry.created_at).toLocaleString()}
+                          </td>
+                          <td style={{ padding: '8px' }}>{entry.mood}</td>
+                          <td style={{ padding: '8px' }}>{entry.note || '—'}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+
+                <h3 style={{ marginTop: '2rem' }}>📊 Mood Summary (Pie Chart)</h3>
+                <canvas id="moodChart" style={{ maxHeight: '400px', marginBottom: '2rem' }} />
               </>
             )}
           </IonCardContent>

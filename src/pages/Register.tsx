@@ -48,7 +48,7 @@ const Register: React.FC = () => {
 
       // Redirect to the Login page after successful registration
       setTimeout(() => {
-        navigation.push('/our-project-app-dev/Login', 'forward', 'replace'); // Redirect to Login
+        navigation.push('/Our-Project-App-Dev/Login', 'forward', 'replace'); // Redirect to Login
       }, 1500);
     }
   };
@@ -97,7 +97,7 @@ const Register: React.FC = () => {
         <IonButton
           expand="full"
           fill="clear"
-          routerLink="/our-project-app-dev/login"
+          routerLink="/Our-Project-App-Dev/login"
           style={{ marginTop: '10px', textTransform: 'none' }}
         >
           Already have an account? Login here
