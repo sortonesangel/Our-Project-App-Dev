@@ -6,14 +6,13 @@ import {
   IonContent,
   IonButton,
   IonTextarea,
-  IonItem,
-  IonLabel,
   IonCard,
   IonCardContent,
+  IonItem,
+  IonLabel,
 } from '@ionic/react';
 import { happy, sad, alertCircle, removeCircle, helpCircle } from 'ionicons/icons';
-import React, { useEffect, useState, useRef } from 'react';
-import Chart from 'chart.js/auto';
+import React, { useEffect, useState } from 'react';
 import { supabase } from '../../utils/supabaseClient';
 
 const moods = [
@@ -37,17 +36,10 @@ const MoodTracker: React.FC = () => {
   const [note, setNote] = useState('');
   const [entries, setEntries] = useState<any[]>([]);
   const [showLog, setShowLog] = useState(false);
-  const chartRef = useRef<Chart | null>(null);
 
   useEffect(() => {
     fetchEntries();
   }, []);
-
-  useEffect(() => {
-    if (showLog && entries.length > 0) {
-      renderChart();
-    }
-  }, [entries, showLog]);
 
   const fetchEntries = async () => {
     const { data, error } = await supabase
@@ -55,8 +47,11 @@ const MoodTracker: React.FC = () => {
       .select('*')
       .order('created_at', { ascending: false });
 
-    if (error) console.error('Error fetching mood entries:', error.message);
-    else setEntries(data || []);
+    if (error) {
+      console.error('Error fetching mood entries:', error.message);
+    } else {
+      setEntries(data || []);
+    }
   };
 
   const saveMood = async (mood: string, note = '') => {
@@ -68,8 +63,11 @@ const MoodTracker: React.FC = () => {
       },
     ]);
 
-    if (error) console.error('Error saving mood:', error.message);
-    else fetchEntries();
+    if (error) {
+      console.error('Error saving mood:', error.message);
+    } else {
+      fetchEntries();
+    }
   };
 
   const handleSubmit = () => {
@@ -83,167 +81,201 @@ const MoodTracker: React.FC = () => {
 
   const toggleLog = () => setShowLog(!showLog);
 
-  const getWeekRange = () => {
-    const now = new Date();
-    const monday = new Date(now);
-    const sunday = new Date(now);
-    monday.setDate(now.getDate() - ((now.getDay() + 6) % 7));
-    monday.setHours(0, 0, 0, 0);
-    sunday.setDate(monday.getDate() + 6);
-    sunday.setHours(23, 59, 59, 999);
-    return { monday, sunday };
-  };
-
-  const renderChart = () => {
-    const ctx = document.getElementById('moodChart') as HTMLCanvasElement;
-    if (!ctx) return;
-
-    if (chartRef.current) chartRef.current.destroy();
-
-    const currentWeek = getWeekRange();
-    const filtered = entries.filter(e => {
-      const d = new Date(e.created_at);
-      return d >= currentWeek.monday && d <= currentWeek.sunday;
-    });
-
-    const moodCounts: Record<string, number> = {};
-    moods.forEach(m => (moodCounts[m.label] = 0));
-    filtered.forEach(e => moodCounts[e.mood]++);
-
-    const moodLabels = moods.map(m => m.label);
-    const moodData = moodLabels.map(label => moodCounts[label]);
-    const moodColors = moods.map(m => m.color);
-
-    chartRef.current = new Chart(ctx, {
-      type: 'pie',
-      data: {
-        labels: moodLabels,
-        datasets: [{
-          data: moodData,
-          backgroundColor: moodColors,
-        }],
-      },
-      options: {
-        responsive: true,
-        plugins: {
-          legend: { position: 'bottom' },
-        },
-      },
-    });
-  };
-
   return (
     <IonPage>
       <IonHeader>
         <IonToolbar color="primary">
-          <IonTitle style={{ textAlign: 'center' }}>Mood Tracker</IonTitle>
+          <IonTitle>Mood Tracker - AppDev & Emerging Tech</IonTitle>
         </IonToolbar>
       </IonHeader>
+      <IonContent fullscreen className="ion-padding" style={{ maxWidth: 480, margin: 'auto' }}>
+        {/* Selected Mood Display */}
+        {selectedMood && (
+          <div
+            style={{
+              textAlign: 'center',
+              marginBottom: '1rem',
+              padding: '1rem',
+              background: '#f9f9f9',
+              borderRadius: '12px',
+              boxShadow: '0 2px 6px rgba(0,0,0,0.1)',
+            }}
+          >
+            <img
+              src={animatedMoodGIFs[selectedMood]}
+              alt={selectedMood}
+              style={{ height: '120px', borderRadius: '12px', marginBottom: '0.5rem' }}
+            />
+            <h2 style={{ margin: 0 }}>{selectedMood}</h2>
+          </div>
+        )}
 
-      <IonContent fullscreen className="ion-padding">
-        <IonCard className="ion-margin" style={{ borderRadius: '16px', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}>
-          <IonCardContent>
-            <div style={{ textAlign: 'center' }}>
-              <h2 style={{ fontWeight: 'bold', marginBottom: '0.5rem' }}>🧠 Track Your Mood</h2>
-              <p style={{ color: '#666', marginBottom: '1rem' }}>
-                Log how you feel and see your emotional patterns!
-              </p>
-            </div>
-    
-            <div style={{ display: 'flex', justifyContent: 'center', flexWrap: 'wrap' }}>
-              {moods.map((mood) => (
-                <IonButton
-                  key={mood.label}
-                  color={selectedMood === mood.label ? 'success' : 'light'}
-                  onClick={() => setSelectedMood(mood.label)}
+        {/* Mood Selector Horizontal Scroll */}
+        <div
+          style={{
+            display: 'flex',
+            overflowX: 'auto',
+            paddingBottom: '1rem',
+            gap: '1rem',
+            marginBottom: '1rem',
+            scrollSnapType: 'x mandatory',
+          }}
+        >
+          {moods.map((mood) => (
+            <button
+              key={mood.label}
+              onClick={() => setSelectedMood(mood.label)}
+              style={{
+                minWidth: 100,
+                minHeight: 100,
+                borderRadius: '15px',
+                border: selectedMood === mood.label ? `3px solid ${mood.color}` : '2px solid #ccc',
+                background: selectedMood === mood.label ? mood.color + '33' : 'transparent',
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                justifyContent: 'center',
+                cursor: 'pointer',
+                flexShrink: 0,
+                transition: 'all 0.3s ease',
+                scrollSnapAlign: 'start',
+              }}
+              aria-label={mood.label}
+              title={mood.label}
+            >
+              <span style={{ fontSize: '3rem', marginBottom: '0.3rem' }}>{mood.label.split(' ')[0]}</span>
+              <span style={{ fontWeight: '600' }}>{mood.label.split(' ').slice(1).join(' ')}</span>
+            </button>
+          ))}
+        </div>
+
+        {/* Note Input */}
+        <IonItem lines="full" style={{ borderRadius: '12px', marginBottom: '1rem' }}>
+          <IonLabel position="stacked">Optional Note</IonLabel>
+          <IonTextarea
+            placeholder="Write about your day or feelings..."
+            value={note}
+            onIonChange={(e) => setNote(e.detail.value!)}
+            rows={4}
+            style={{ borderRadius: '8px', padding: '8px' }}
+          />
+        </IonItem>
+
+        {/* Save & Toggle History Buttons */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '1rem',
+            marginBottom: '1rem',
+          }}
+        >
+          <IonButton expand="block" color="success" onClick={handleSubmit} disabled={!selectedMood} style={{ flex: 1 }}>
+            Save Mood Entry
+          </IonButton>
+
+          <IonButton expand="block" color="medium" onClick={toggleLog} style={{ flex: 1 }}>
+            {showLog ? 'Hide History' : 'Show History'}
+          </IonButton>
+        </div>
+
+        {/* Mood History & Percentages */}
+        {showLog && (
+          <IonCard>
+            <IonCardContent>
+              <h3>📅 Mood History</h3>
+              {entries.length === 0 ? (
+                <p>No mood entries yet.</p>
+              ) : (
+                <ul
                   style={{
-                    margin: '0.5rem',
-                    borderRadius: '12px',
-                    padding: '0.75rem',
-                    width: '100px',
-                    height: '100px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    boxShadow: selectedMood === mood.label ? '0 0 10px rgba(0, 128, 0, 0.3)' : 'none',
+                    listStyle: 'none',
+                    paddingLeft: 0,
+                    maxHeight: '200px',
+                    overflowY: 'auto',
+                    marginBottom: '1rem',
                   }}
                 >
-                  <img
-                    src={mood.icon}
-                    alt={mood.label}
-                    style={{ height: '32px', marginBottom: '0.5rem' }}
-                  />
-                  <span style={{ fontSize: '0.85rem', textAlign: 'center' }}>{mood.label}</span>
-                </IonButton>
-              ))}
-            </div>
+                  {entries.map((entry, idx) => {
+                    const moodData = moods.find((m) => m.label === entry.mood);
+                    return (
+                      <li
+                        key={idx}
+                        style={{
+                          marginBottom: '0.75rem',
+                          borderLeft: `5px solid ${moodData?.color}`,
+                          paddingLeft: '0.75rem',
+                          wordBreak: 'break-word',
+                        }}
+                      >
+                        <strong>{entry.mood}</strong> on {new Date(entry.created_at).toLocaleString()}
+                        {entry.note && (
+                          <p style={{ fontStyle: 'italic', marginTop: '0.25rem' }}>Note: {entry.note}</p>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              )}
 
-            {selectedMood && (
-              <div style={{ textAlign: 'center', margin: '1rem 0' }}>
-                <img
-                  src={animatedMoodGIFs[selectedMood]}
-                  alt={selectedMood}
-                  style={{ height: '100px', borderRadius: '1rem' }}
-                />
-                <p style={{ fontWeight: 'bold', fontSize: '1.1rem' }}>{selectedMood}</p>
-              </div>
-            )}
+              {/* Mood Percentages */}
+              {entries.length > 0 && (
+                <div style={{ marginTop: '1rem' }}>
+                  <h3>📊 Mood Summary</h3>
+                  {(() => {
+                    const total = entries.length;
+                    const moodCounts: Record<string, number> = {};
+                    entries.forEach((entry) => {
+                      moodCounts[entry.mood] = (moodCounts[entry.mood] || 0) + 1;
+                    });
 
-            <IonItem lines="none" style={{ marginBottom: '1rem' }}>
-              <IonLabel position="stacked">Optional Note</IonLabel>
-              <IonTextarea
-                placeholder="Write about your day..."
-                value={note}
-                onIonChange={e => setNote(e.detail.value!)}
-                autoGrow
-              />
-            </IonItem>
+                    // Get dominant mood
+                    const dominantMood = Object.entries(moodCounts).reduce((a, b) =>
+                      a[1] > b[1] ? a : b
+                    )[0];
 
-            <IonButton expand="block" color="success" onClick={handleSubmit}>
-              Save Mood Entry
-            </IonButton>
+                    return (
+                      <>
+                        {Object.entries(moodCounts).map(([mood, count]) => {
+                          const percent = ((count / total) * 100).toFixed(1);
+                          const moodData = moods.find((m) => m.label === mood);
+                          return (
+                            <div key={mood} style={{ marginBottom: '0.5rem' }}>
+                              <div style={{ fontWeight: 600 }}>
+                                {mood}: {percent}%
+                              </div>
+                              <div
+                                style={{
+                                  height: '12px',
+                                  width: '100%',
+                                  background: '#eee',
+                                  borderRadius: '6px',
+                                  overflow: 'hidden',
+                                }}
+                              >
+                                <div
+                                  style={{
+                                    width: `${percent}%`,
+                                    background: moodData?.color || '#666',
+                                    height: '100%',
+                                  }}
+                                />
+                              </div>
+                            </div>
+                          );
+                        })}
 
-            <IonButton expand="block" color="medium" onClick={toggleLog}>
-              {showLog ? 'Hide Mood History' : 'Show Weekly Mood Log'}
-            </IonButton>
-
-            {showLog && (
-              <>
-                <h3 style={{ marginTop: '2rem', textAlign: 'center' }}>📅 Mood Entries (This Week)</h3>
-                {entries.length === 0 ? (
-                  <p style={{ textAlign: 'center' }}>No mood entries yet.</p>
-                ) : (
-                  <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', marginTop: '1rem' }}>
-                      <thead>
-                        <tr style={{ backgroundColor: '#f2f2f2' }}>
-                          <th style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Date</th>
-                          <th style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Mood</th>
-                          <th style={{ padding: '10px', borderBottom: '1px solid #ccc' }}>Note</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {entries.map((entry, idx) => (
-                          <tr key={idx}>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>
-                              {new Date(entry.created_at).toLocaleString()}
-                            </td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{entry.mood}</td>
-                            <td style={{ padding: '10px', borderBottom: '1px solid #eee' }}>{entry.note || '—'}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                <h3 style={{ marginTop: '2rem', textAlign: 'center' }}>📊 Weekly Mood Chart</h3>
-                <canvas id="moodChart" style={{ maxHeight: '400px', margin: '0 auto', display: 'block' }} />
-              </>
-            )}
-          </IonCardContent>
-        </IonCard>
+                        {/* Fun dominant mood feedback */}
+                        <p style={{ marginTop: '1rem', fontStyle: 'italic' }}>
+                          You mostly feel <strong>{dominantMood}</strong> in this subject. Keep it up! 🎉
+                        </p>
+                      </>
+                    );
+                  })()}
+                </div>
+              )}
+            </IonCardContent>
+          </IonCard>
+        )}
       </IonContent>
     </IonPage>
   );
