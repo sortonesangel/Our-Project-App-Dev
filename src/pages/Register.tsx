@@ -63,7 +63,7 @@ const Register: React.FC = () => {
         {/* Background wrapper */}
         <div
           style={{
-            backgroundImage: `url('https://25.media.tumblr.com/4981aa50cb40c02bb3a32ccd23293979/tumblr_mpzog4yg7X1s1minfo1_500.gif')`, // ← your image path here
+            backgroundImage: `url('https://down-br.img.susercontent.com/file/br-11134207-7r98o-m5x4it7keylu10')`, // ← your image path here
             backgroundSize: 'cover',
             backgroundPosition: 'center',
             backgroundRepeat: 'no-repeat',
