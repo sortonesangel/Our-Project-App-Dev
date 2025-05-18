@@ -48,6 +48,7 @@ const AccessPortal: React.FC = () => {
   };
 
   return (
+    
     <IonPage>
       <IonContent fullscreen>
         <div
