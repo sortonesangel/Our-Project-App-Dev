@@ -74,6 +74,7 @@ const Register: React.FC = () => {
             padding: '16px',
           }}
         >
+          
           {/* Center container */}
           <div style={{ width: '100%', maxWidth: '400px' }}>
             <IonCard
