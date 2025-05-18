@@ -129,4 +129,5 @@ const Details: React.FC = () => {
   );
 };
 
+
 export default Details;
