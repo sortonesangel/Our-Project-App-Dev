@@ -52,9 +52,9 @@ const AccessPortal: React.FC = () => {
       <IonContent fullscreen>
         <div
  style={{
-  backgroundImage: 'url("https://discovertemplate.com/wp-content/uploads/2021/06/Emoji-Animated-GIF-Icon-pack.gif")',
+  backgroundImage: 'url("https://cdn-ssl.s7.shopdisney.com/is/image/DisneyShopping/5108058380183-5?fmt=jpeg&qlt=90&wid=608&hei=608")',
   backgroundPosition: 'center',
-  backgroundRepeat: 'no-repeat',
+  backgroundRepeat: 'repeat',
   backgroundSize: 'contain', // Or use 'cover' if you want it full screen
   minHeight: '100vh',
   width: '100%',
@@ -219,7 +219,7 @@ const AccessPortal: React.FC = () => {
               expand="block"
               fill="clear"
               style={{
-                color: '#ffffff',
+                color: '#00008B',
                 textDecoration: 'underline',
                 fontSize: '14px',
                 transition: 'color 0.3s ease',
