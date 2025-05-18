@@ -51,27 +51,29 @@ const AccessPortal: React.FC = () => {
     <IonPage>
       <IonContent fullscreen>
         <div
-  style={{
-    backgroundImage: 'url("https://discovertemplate.com/wp-content/uploads/2021/06/Emoji-Animated-GIF-Icon-pack.gif")', // Heart-eyes emoji pattern
-    backgroundPosition: 'center',
-    backgroundSize: '180px 180px',
-    minHeight: '100vh',
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: '20px',
-  }}
+ style={{
+  backgroundImage: 'url("https://discovertemplate.com/wp-content/uploads/2021/06/Emoji-Animated-GIF-Icon-pack.gif")',
+  backgroundPosition: 'center',
+  backgroundRepeat: 'no-repeat',
+  backgroundSize: 'contain', // Or use 'cover' if you want it full screen
+  minHeight: '100vh',
+  width: '100%',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  padding: '20px',
+}}
+
 >
           <div
             style={{
-              backgroundColor: 'rgba(19, 18, 19, 0.57)', 
+              backgroundColor: 'rgba(194, 193, 194, 0.57)', 
               borderRadius: '15px',
               padding: '30px',
               width: '100%',
               maxWidth: '420px',
               backdropFilter: 'blur(8px)', 
-              border: '1px solid rgba(255, 255, 255, 0.1)',
+              border: '1px solid rgba(255, 255, 255, 0.68)',
             }}
           >
            
@@ -113,7 +115,7 @@ const AccessPortal: React.FC = () => {
 
             <h2
   style={{
-    color: '#FFC0CB', // Light pink
+    color: '#ffffff', // Light pink
     fontSize: '24px',
     fontWeight: 'bold',
     marginBottom: '30px',
@@ -200,7 +202,7 @@ const AccessPortal: React.FC = () => {
               expand="block"
               style={{
                 backgroundColor: '#1DB954',
-                color: '#FFC0CB',
+                color: '#ffffff',
                 fontWeight: 'bold',
                 borderRadius: '10px',
                 marginBottom: '10px',
@@ -217,7 +219,7 @@ const AccessPortal: React.FC = () => {
               expand="block"
               fill="clear"
               style={{
-                color: '#FFC0CB',
+                color: '#ffffff',
                 textDecoration: 'underline',
                 fontSize: '14px',
                 transition: 'color 0.3s ease',
